@@ -3,7 +3,7 @@ project(long-division)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-list(APPEND SRCFILES long-division.cpp)
+list(APPEND SRCFILES tests.cpp)
 
 add_executable(long-division ${SRCFILES})
 
