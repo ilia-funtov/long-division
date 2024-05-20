@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cmath>
+#include <iostream>
 #include <random>
 #include <stdexcept>
 #include <type_traits>
@@ -73,49 +74,57 @@ long_division(T dividend, T divisor)
     return std::make_pair((negative ? -(quotient + ((remainder != 0) ? 1:0)) : quotient), (divisor < 0) ? -remainder : remainder);
 }
 
+void check(bool condition)
+{
+    if (!condition)
+    {
+        throw std::runtime_error("Test failed");
+    }
+}
+
 template <typename T>
 void test_long_division(T dividend, T divisor)
 {
     const auto [quotient, remainder] = long_division(dividend, divisor);
     if constexpr (std::is_signed_v<T>)
     {
-        assert(std::abs(remainder) < std::abs(divisor));
+        check(std::abs(remainder) < std::abs(divisor));
         if (dividend >= 0 && divisor > 0)
         {
-            assert(quotient >= 0);
-            assert(remainder >= 0);
+            check(quotient >= 0);
+            check(remainder >= 0);
         }
         else if (dividend < 0 && divisor > 0)
         {
-            assert(quotient <= 0);
-            assert(remainder >= 0);
+            check(quotient <= 0);
+            check(remainder >= 0);
         }
         else if (dividend < 0 && divisor < 0)
         {
             if (quotient < 0)
             {                
-                assert(quotient >= 0);
-                assert(remainder <= 0);
+                check(quotient >= 0);
+                check(remainder <= 0);
             }
-            assert(quotient >= 0);
-            assert(remainder <= 0);
+            check(quotient >= 0);
+            check(remainder <= 0);
         }
         else if (dividend >= 0 && divisor < 0)
         {
-            assert(quotient <= 0);
-            assert(remainder <= 0);
+            check(quotient <= 0);
+            check(remainder <= 0);
         }
         else
         {
-            assert(false);
+            check(false);
         }
     }
     else
     {
-        assert(remainder < divisor);
+        check(remainder < divisor);
     }
     
-    assert(quotient * divisor + remainder == dividend);
+    check(quotient * divisor + remainder == dividend);
 }
 
 template <typename T>
@@ -174,36 +183,36 @@ void long_division_test(int sample_count)
     long_division_small_divisor_test<T>(sample_count);
 }
 
-int main()
+void run_tests()
 {
-    assert(long_division(1, 1).first == 1);
-    assert(long_division(1, 1).second == 0);
-    assert(long_division(0, 1).first == 0);
-    assert(long_division(1, 1).first == 1);
-    assert(long_division(2, 1).first == 2);
+    check(long_division(1, 1).first == 1);
+    check(long_division(1, 1).second == 0);
+    check(long_division(0, 1).first == 0);
+    check(long_division(1, 1).first == 1);
+    check(long_division(2, 1).first == 2);
     
     {
         const auto [quotient, remainder] = long_division(3, 2);
-        assert(quotient == 1);
-        assert(remainder == 1);
+        check(quotient == 1);
+        check(remainder == 1);
     }
 
     {
         const auto [quotient, remainder] = long_division(64, 4);
-        assert(quotient == 16);
-        assert(remainder == 0);
+        check(quotient == 16);
+        check(remainder == 0);
     }
 
     {
         const auto [quotient, remainder] = long_division(64, 4);
-        assert(quotient == 16);
-        assert(remainder == 0);
+        check(quotient == 16);
+        check(remainder == 0);
     }
 
     {
         const auto [quotient, remainder] = long_division(27, 11);
-        assert(quotient == 2);
-        assert(remainder == 5);
+        check(quotient == 2);
+        check(remainder == 5);
     }
 
     const auto sample_count = 100000;
@@ -219,6 +228,19 @@ int main()
 
     long_division_test<std::int64_t>(sample_count);
     long_division_test<std::uint64_t>(sample_count);
+}
 
+int main()
+{  
+    try
+    {
+        run_tests();
+        std::cout << "All tests passed\n";
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
     return 0;
 }
