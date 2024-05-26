@@ -13,7 +13,7 @@ long_division(T dividend, T divisor)
 
     if (divisor == 0)
     {
-        throw std::invalid_argument("Divisor cannot be zero");
+        throw std::runtime_error("Integer division by zero");
     }
 
     T quotient = 0;

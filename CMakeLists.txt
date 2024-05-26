@@ -5,18 +5,18 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 list(APPEND SRCFILES tests.cpp)
 
-add_executable(long-division ${SRCFILES})
+add_executable(long-division-tests ${SRCFILES})
 
-set_target_properties(long-division PROPERTIES
+set_target_properties(long-division-tests PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
 )
 
 if (MSVC)
-    target_compile_options(long-division PRIVATE /W4)
+    target_compile_options(long-division-tests PRIVATE /W4)
 else()
-    target_compile_options(long-division PRIVATE -Wall)
+    target_compile_options(long-division-tests PRIVATE -Wall)
 endif()
 
 include(FetchContent)
@@ -29,4 +29,4 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Catch2)
 
-target_include_directories(long-division PRIVATE ${Catch2_SOURCE_DIR}/single_include)
+target_include_directories(long-division-tests PRIVATE ${Catch2_SOURCE_DIR}/single_include)

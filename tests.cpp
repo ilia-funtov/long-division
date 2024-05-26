@@ -1,10 +1,12 @@
 #include <cmath>
+#include <cstdlib>
 #include <iostream>
 #include <random>
 #include <stdexcept>
 #include <utility>
 
 #define CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_ENABLE_BENCHMARKING
 #include <catch2/catch.hpp>
 
 #include "long-division.hpp"
@@ -158,4 +160,71 @@ TEST_CASE("Sample values division")
 
     long_division_test<std::int64_t>(sample_count);
     long_division_test<std::uint64_t>(sample_count);
+}
+
+TEST_CASE("Divide by zero")
+{
+    REQUIRE_THROWS_AS(long_division(1, 0), std::runtime_error);
+    REQUIRE_THROWS_AS(long_division(-1, 0), std::runtime_error);
+    REQUIRE_THROWS_AS(long_division(0, 0), std::runtime_error);
+}
+
+TEST_CASE("Performance long-division")
+{
+    constexpr int sample_count = 30;
+
+    BENCHMARK_ADVANCED("Signed division")(Catch::Benchmark::Chronometer meter)
+    {
+        std::default_random_engine eng(3);
+        std::mt19937 gen(eng());
+        using T = std::int64_t;
+        std::uniform_int_distribution<T> dis(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
+
+        T divisor = 1;
+        for (int n = 0; n != sample_count; ++n)
+        {
+            T dividend = dis(gen);
+
+            T quotient = 0;
+            T remainder = 0;
+            meter.measure([dividend, divisor, &quotient, &remainder] { std::tie(quotient, remainder) = long_division(dividend, divisor);});
+            REQUIRE(quotient * divisor + remainder == dividend);
+
+            divisor += divisor + 1; // let overflow happen
+            if (divisor == 0)
+            {
+                divisor = 1;
+            }
+        }
+    };
+}
+
+TEST_CASE("Performance std::div")
+{
+    constexpr int sample_count = 30;
+
+    BENCHMARK_ADVANCED("Signed division")(Catch::Benchmark::Chronometer meter)
+    {
+        std::default_random_engine eng(3);
+        std::mt19937 gen(eng());
+        using T = std::int64_t;
+        std::uniform_int_distribution<T> dis(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
+
+        T divisor = 1;
+        for (int n = 0; n != sample_count; ++n)
+        {
+            T dividend = dis(gen);
+
+            T quotient = 0;
+            T remainder = 0;
+            meter.measure([dividend, divisor, &quotient, &remainder] { const auto div_result = std::div(dividend, divisor); quotient = div_result.quot; remainder = div_result.rem;});
+            REQUIRE(quotient * divisor + remainder == dividend);
+
+            divisor += divisor + 1; // let overflow happen
+            if (divisor == 0)
+            {
+                divisor = 1;
+            }
+        }
+    };
 }
