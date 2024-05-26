@@ -28,8 +28,9 @@ long_division(T dividend, T divisor)
             dividend -= current_divisor;
             quotient += quotient_add_term;
             const auto next_divisor = static_cast<decltype(current_divisor)>(current_divisor << 1);
-            if ((next_divisor >> 1) == current_divisor)
+            if ((next_divisor >> 1) == current_divisor) // check if new divisor got overflow
             {
+                // don't have overflow, use new divisor
                 current_divisor = next_divisor;
                 quotient_add_term <<= 1;
             }
