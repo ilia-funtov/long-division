@@ -4,15 +4,10 @@
 #include <stdexcept>
 #include <utility>
 
-#include "long-division.hpp"
+#define CATCH_CONFIG_MAIN
+#include <catch2/catch.hpp>
 
-void check(bool condition)
-{
-    if (!condition)
-    {
-        throw std::runtime_error("Test failed");
-    }
-}
+#include "long-division.hpp"
 
 template <typename T>
 void test_long_division(T dividend, T divisor)
@@ -20,43 +15,43 @@ void test_long_division(T dividend, T divisor)
     const auto [quotient, remainder] = long_division(dividend, divisor);
     if constexpr (std::is_signed_v<T>)
     {
-        check(std::abs(remainder) < std::abs(divisor));
+        REQUIRE(std::abs(remainder) < std::abs(divisor));
         if (dividend >= 0 && divisor > 0)
         {
-            check(quotient >= 0);
-            check(remainder >= 0);
+            REQUIRE(quotient >= 0);
+            REQUIRE(remainder >= 0);
         }
         else if (dividend < 0 && divisor > 0)
         {
-            check(quotient <= 0);
-            check(remainder >= 0);
+            REQUIRE(quotient <= 0);
+            REQUIRE(remainder >= 0);
         }
         else if (dividend < 0 && divisor < 0)
         {
             if (quotient < 0)
             {                
-                check(quotient >= 0);
-                check(remainder <= 0);
+                REQUIRE(quotient >= 0);
+                REQUIRE(remainder <= 0);
             }
-            check(quotient >= 0);
-            check(remainder <= 0);
+            REQUIRE(quotient >= 0);
+            REQUIRE(remainder <= 0);
         }
         else if (dividend >= 0 && divisor < 0)
         {
-            check(quotient <= 0);
-            check(remainder <= 0);
+            REQUIRE(quotient <= 0);
+            REQUIRE(remainder <= 0);
         }
         else
         {
-            check(false);
+            REQUIRE(false);
         }
     }
     else
     {
-        check(remainder < divisor);
+        REQUIRE(remainder < divisor);
     }
     
-    check(quotient * divisor + remainder == dividend);
+    REQUIRE(quotient * divisor + remainder == dividend);
 }
 
 template <typename T>
@@ -115,39 +110,42 @@ void long_division_test(int sample_count)
     long_division_small_divisor_test<T>(sample_count);
 }
 
-void run_tests()
+TEST_CASE("Basic division")
 {
-    check(long_division(1, 1).first == 1);
-    check(long_division(1, 1).second == 0);
-    check(long_division(0, 1).first == 0);
-    check(long_division(1, 1).first == 1);
-    check(long_division(2, 1).first == 2);
+    REQUIRE(long_division(1, 1).first == 1);
+    REQUIRE(long_division(1, 1).second == 0);
+    REQUIRE(long_division(0, 1).first == 0);
+    REQUIRE(long_division(1, 1).first == 1);
+    REQUIRE(long_division(2, 1).first == 2);
     
     {
         const auto [quotient, remainder] = long_division(3, 2);
-        check(quotient == 1);
-        check(remainder == 1);
+        REQUIRE(quotient == 1);
+        REQUIRE(remainder == 1);
     }
 
     {
         const auto [quotient, remainder] = long_division(64, 4);
-        check(quotient == 16);
-        check(remainder == 0);
+        REQUIRE(quotient == 16);
+        REQUIRE(remainder == 0);
     }
 
     {
         const auto [quotient, remainder] = long_division(64, 4);
-        check(quotient == 16);
-        check(remainder == 0);
+        REQUIRE(quotient == 16);
+        REQUIRE(remainder == 0);
     }
 
     {
         const auto [quotient, remainder] = long_division(27, 11);
-        check(quotient == 2);
-        check(remainder == 5);
+        REQUIRE(quotient == 2);
+        REQUIRE(remainder == 5);
     }
+}
 
-    const auto sample_count = 100000;
+TEST_CASE("Sample values division")
+{
+    const auto sample_count = 1000000;
 
     long_division_test<std::int8_t>(sample_count);
     long_division_test<std::uint8_t>(sample_count);
@@ -160,19 +158,4 @@ void run_tests()
 
     long_division_test<std::int64_t>(sample_count);
     long_division_test<std::uint64_t>(sample_count);
-}
-
-int main()
-{  
-    try
-    {
-        run_tests();
-        std::cout << "All tests passed\n";
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
-    
-    return 0;
 }
