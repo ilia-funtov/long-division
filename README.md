@@ -3,10 +3,8 @@ This project implements a variant of a division algorithm that can be used with 
 
 It performs division in iterative way using only bit shifts (for multiplication and division by 2) and addition and subtraction operations.
 
-Long Division Algorithm Description
-The long_division function implements a division algorithm that can be used on CPUs without native division support. It performs division using only bit shifts, addition, and subtraction operations.
-
 Algorithm Overview
+
 The algorithm works by implementing a binary long division approach that:
 
 1. Handles both unsigned and signed integer types
@@ -15,6 +13,7 @@ The algorithm works by implementing a binary long division approach that:
 
 
 How the Algorithm Works
+
 For Unsigned Types:
 1. Initialization:
 
